@@ -1,9 +1,24 @@
-// use express to handle routing
-var express = require('express');
-var app = express();
+var app = require('express')();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
-app.get('/', function(req,res){
-  res.send('Hello World')
-})
+server.listen(3000);
 
-app.listen(3000);
+app.get('/', function (req, res) {
+  res.sendfile(__dirname + '/view.html');
+});
+
+io.on('connection', function (socket) {
+  var names = {}; 
+  socket.on('newMessage', function (data) {
+    // broadcast the received message to all the other clients
+    socket.broadcast.emit('appendMsg', {name: names[socket.id], message: data});
+  });
+
+  socket.on('nameChange', function(name){
+    names[socket.id] = name;
+  })
+});
+
+
+

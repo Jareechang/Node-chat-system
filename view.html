@@ -1,0 +1,79 @@
+<!DOCTYPE html> 
+
+<html>
+  <head> 
+    <script src="/socket.io/socket.io.js"></script>
+     <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  </head>
+  <body> 
+    <h1> Chat system for lulz</h1>
+    <!-- activating the modal for name input -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".modal-selector">Name</button>
+    <div class="modal fade modal-selector" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">What is your name?</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Name" name="Username" aria-describedby="basic-addon1">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" id="namechange" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <div>
+      <script>
+      // handling sockets
+      var socket = io();
+        
+      // selecting message form 
+      $(function(){
+        var userNameLocal = '';
+        $('#message-form').submit(function(e){
+            // prevent default behaviour
+            e.preventDefault();
+            // Get the message type in form and emit the messsage
+            var msg = $('input[name="message"]').val();
+            socket.emit('newMessage', msg);
+            // appending on this local machine
+            $('input[name="message"]').val('');
+            $('#chat-area').append('<p>'+ userNameLocal + ':'+ msg + '</p>').append('<br />');
+        })
+
+        // changing user name 
+        $('#namechange').click(function(){
+          var newName = $('input[name="Username"]').val();
+          //change name locally 
+          userNameLocal = newName;
+          //emit event to change name
+          socket.emit('nameChange', newName);
+        })
+      })
+
+      
+      socket.on('appendMsg', function (data) {
+        $('#chat-area').append( '<p>' + data.name + ':' + data.message +'</p>').append('<br />')
+      });
+
+      </script>
+    </div>
+
+    <div id="chat-area"> 
+
+    </div>
+    <form id="message-form">
+      <input type='text' name='message' />
+      <input type='submit' name='' value='Send' />
+    </form>
+ 
+  </body>
+</html>
