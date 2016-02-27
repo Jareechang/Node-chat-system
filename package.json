@@ -7,9 +7,12 @@
     "express": "^4.12.4",
     "socket.io": "^1.3.5"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-preset-es2015": "^6.5.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel --presets es2015 ./server.js",
     "start": "node server.js"
   },
   "repository": {
