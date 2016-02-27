@@ -17,6 +17,69 @@
         <h1> Chat system for lulz</h1>
         <!-- activating the modal for name input -->
         <button type="button" id="nameButton" class="btn btn-primary" data-toggle="modal" data-target=".modal-selector">Name</button>
+
+        
+        <script>
+
+
+            /* REFACTOR CODE ****
+            *****************/
+
+            // handling sockets
+            var socket = io();
+
+            // User object
+            var user = {};
+                
+              // selecting message form 
+            $(function(){
+                var userNameLocal = '';
+                $('#message-form').submit(function(e){
+                    // prevent default behaviour
+                    e.preventDefault();
+                    // Get the message type in form and emit the messsage
+                    var msg = $('input[name="message"]').val();
+                    socket.emit('newMessage', msg);
+                    // appending on this local machine
+                    $('input[name="message"]').val('');
+                    $('#chat-area').append('<p>'+ user.name + ':'+ msg + '</p>').append('<br />');
+                    $('#chat-container').animate({"scrollTop": $('#chat-container')[0].scrollHeight}, "slow");
+                })
+
+                // changing user name 
+                $('#namechange').click(function(){
+                    var newName = $('input[name="Username"]').val();
+                    //change name locally 
+                    userNameLocal = newName;
+                    //emit event to change name
+                    socket.emit('nameChange', newName);
+                })
+
+                $('#input-field').focus(function(){
+                    $('#user-typing-text').css({'display' : 'block'})
+                })
+
+                $('#input-field').blur(function() {
+                    $('#user-typing-text').css({'display' : 'none'})
+                })
+
+            })
+              
+            socket.on('appendMsg', function (data) {                    
+                $('#chat-area').append( '<p>' + user.name + ':' + data.message +'</p>').append('<br />');
+                $('#chat-container')
+                    .animate({"scrollTop": $('#chat-container')[0].scrollHeight}, "slow");
+            });
+
+            socket.on('connected', function(data){
+                // Assign name
+                user.name = data.name;
+            })
+
+        </script>
+    
+
+
         <div class="modal fade modal-selector" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -36,75 +99,32 @@
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        <div>
-            <script>
 
+        <div class="row">
+            <div class="col-md-8">
+                <div style="height:400px; overflow:scroll;" id="chat-container">
+                    <div id="chat-area"> 
+                    </div>
+                </div>
+                <div class="user-typing">
+                    <p id="user-typing-text" style="display:none;">User is typing... </p>
+                </div>
+                <form id="message-form">
+                  <input type='text-area' name='message' id="input-field"/>
+                  <input type='submit' name='' value='Send' />
+                </form>
+            </div>
 
-                /* REFACTOR CODE ****
-                *****************/
-
-                // handling sockets
-                var socket = io();
-
-                // User object
-                var user = {};
-                    
-                  // selecting message form 
-                $(function(){
-                    var userNameLocal = '';
-                    $('#message-form').submit(function(e){
-                        // prevent default behaviour
-                        e.preventDefault();
-                        // Get the message type in form and emit the messsage
-                        var msg = $('input[name="message"]').val();
-                        socket.emit('newMessage', msg);
-                        // appending on this local machine
-                        $('input[name="message"]').val('');
-                        $('#chat-area').append('<p>'+ user.name + ':'+ msg + '</p>').append('<br />');
-                    })
-
-                    // changing user name 
-                    $('#namechange').click(function(){
-                        var newName = $('input[name="Username"]').val();
-                        //change name locally 
-                        userNameLocal = newName;
-                        //emit event to change name
-                        socket.emit('nameChange', newName);
-                    })
-
-                    $('#input-field').focus(function(){
-                        $('#user-typing-text').css({'display' : 'block'})
-                    })
-
-                    $('#input-field').blur(function() {
-                        $('#user-typing-text').css({'display' : 'none'})
-                    })
-
-                })
-                  
-                socket.on('appendMsg', function (data) {                    
-                    $('#chat-area').append( '<p>' + user.name + ':' + data.message +'</p>').append('<br />')
-                });
-
-                socket.on('connected', function(data){
-                    // Assign name
-                    user.name = data.name;
-                })
-
-            </script>
+            <div class="col-md-4">  
+                <ul>
+                    <li> list of things</li>
+                    <li> list of things</li>
+                    <li> list of things</li>
+                    <li> list of things</li>
+                </ul>
+            </div>
         </div>
 
-            <div id="chat-area"> 
-            </div>
-
-            <div class="user-typing">
-                <p id="user-typing-text" style="display:none;">User is typing... </p>
-            </div>
-
-            <form id="message-form">
-              <input type='text-area' name='message' id="input-field"/>
-              <input type='submit' name='' value='Send' />
-            </form>
  
     </body>
 </html>
